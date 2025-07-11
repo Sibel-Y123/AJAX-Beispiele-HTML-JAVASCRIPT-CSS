@@ -159,7 +159,7 @@
                         <p>${item.description || ""}</p>  
                         <div class="date">Veröffentlichungsdatum: ${date}</div>  
                     </div>`;
-                }).join('');  // for turning all arrays into  a string
+                }).join('');  // for turning all  into  a string
 
             } catch (err) {
                 newslist.innerHTML = `<p style="color:red;">Hier gibt es noch keine Nachrichten: ${err.message}</p>`;
