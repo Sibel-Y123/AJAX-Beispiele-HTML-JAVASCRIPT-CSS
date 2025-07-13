@@ -135,7 +135,7 @@
 
             newslist.innerHTML = `<p>Wird geladen...</p>`;
 
-            try {//Find my error ang give me control
+            try {//Find my error and give me control
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP Fehler: ${response.status}`);
                 const data = await response.json();  // from JSON string to JSON object
