@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Online-Bibliothek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            
+}
+
+        
+
+        h1 {
+            text-align: center;
+            
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+
+        form input,
+        form textarea {
+            flex: 1 1 100%;
+            padding: .5rem;
+            font-size: 1rem;
+        }
+
+        form button {
+            padding: .5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .book-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: .75rem;
+            margin-bottom: .75rem;
+            position: relative;
+            background-color: white;
+        }
+
+        .book-item h3 {
+            margin: 0 0 .5rem;
+        }
+
+        .book-item p {
+            margin: 0 0 .5rem;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: .75rem;
+            right: .75rem;
+            background: #c50811;
+            color: white;
+            border: none;
+          
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Online-Bibliothek</h1>
+
+<form id="addBookForm">
+    <input type="text" id="title" placeholder="Bitte schreibe mir einen Buchtitel...." required>
+    <textarea id="body" rows="2" placeholder="Buchbeschreibung...." required></textarea>
+    <button type="submit">Buch hinzufügen</button>
+</form>
+
+<div id="bookList"></div>
+
+<script>
+    const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+
+    document.addEventListener("DOMContentLoaded", fetchBooks);
+
+    document.getElementById("addBookForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById("title").value.trim();
+        const body = document.getElementById("body").value.trim();
+        if (!title || !body) return;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, body })
+            });
+
+            const newBook = await response.json();
+            addBook(newBook);
+            e.target.reset();
+        } catch (err) {
+            console.error("Es gibt kein Buch", err);
+        }
+    });
+
+    function addBook(book) {
+        const list = document.getElementById("bookList");
+        list.insertAdjacentHTML("afterbegin", bookCard(book));
+        attachDeleteHandlers();
+    }
+
+    async function fetchBooks() {
+        try {
+            const response = await fetch(`${apiUrl}?_limit=30`);
+            const books = await response.json();
+            const list = document.getElementById("bookList");
+            list.innerHTML = books.map(book => bookCard(book)).join("");
+            attachDeleteHandlers();
+        } catch (err) {
+            console.error("Es gibt kein Buch", err);
+        }
+    }
+
+    function bookCard(book) {
+        return `
+        <div class="book-item" data-id="${book.id}">
+            <h3>${escapeHtml(book.title)}</h3>
+            <p>${escapeHtml(book.body)}</p>
+            <button class="delete-btn">Löschen</button>
+        </div>`;
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, c =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+        );
+    }
+
+    function attachDeleteHandlers() {
+        document.querySelectorAll(".book-item .delete-btn").forEach(btn => {
+            btn.onclick = async () => {
+                const item = btn.closest(".book-item");
+                const id = item.getAttribute("data-id");
+                try {
+                    await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+                    item.remove();
+                } catch (err) {
+                    console.error("Löschen fehlgeschlagen:", err);
+                }
+            };
+        });
+    }
+</script>
+
+</body>
+</html>
