@@ -138,7 +138,7 @@
             try {//Find my error ang give me control
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP Fehler: ${response.status}`);
-                const data = await response.json();  // from JSON string to JSON object
+                const data = await response.json();  // from JSON string to JavaScript object
 
                 if (!data.articles || data.articles.length === 0) {
                     newslist.innerHTML = `<p>In dieser Kategorie gibt es noch keine Nachrichten.</p>`;
